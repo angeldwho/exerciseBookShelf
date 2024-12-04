@@ -13,7 +13,6 @@ class Authenticate extends Middleware
      */
     protected function redirectTo(Request $request): ?string
     {
-        $xdebugBreak = xdebug_break();
         return $request->expectsJson() ? null : route([RegisterController::class, 'login']);
     }
 }

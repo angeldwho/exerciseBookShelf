@@ -2,11 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
-use Throwable;
-use App\Models\Author;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\AuthorResource;
 use App\Http\Requests\StoreAuthorRequest;
 use App\Http\Requests\UpdateAuthorRequest;
 use App\Interfaces\IRepositories\AuthorRepositoryInterface;
