@@ -3,12 +3,13 @@
 namespace App\Http\Controllers\API;
 
 use App\Models\User;
+use App\Jobs\SendEmailJob;
 use Illuminate\Http\Request;
+use App\Utils\ApiCustomResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\API\BaseController;
-use Validator;
 
-class RegisterController extends BaseController
+class RegisterController extends Controller
 {
     /**
      * Register api
@@ -32,7 +33,7 @@ class RegisterController extends BaseController
         $success['token'] = $user -> createToken('exerciseBookShelf')->plainTextToken;
         $success['name'] = $user->name;
 
-        return $this->sendResponse($success,'User register successfully');
+        return ApiCustomResponse::sendResponse($success,'User register successfully');
     }
 
     /**
@@ -46,18 +47,20 @@ class RegisterController extends BaseController
             $user = Auth::user();
             $success['token'] =  $user -> createToken('exerciseBookShelf')->plainTextToken;
             $success['name'] =  $user -> name;
-
-            return $this->sendResponse($success, 'User login successfully.');
+            dispatch(new SendEmailJob($request->email));
+            return ApiCustomResponse::sendResponse($success, 'User login successfully.');
         }
         else{
-            return $this->sendError('Unauthorised.', ['error'=>'Unauthorised'],403);
+            return ApiCustomResponse::sendError('Unauthorised.', ['error'=>'Unauthorised'],403);
         }
     }
-    public function logout(){
-        auth()->user()->tokens()->delete();
 
-        return response()->json([
-          "message"=>"logged out"
-        ]);
+    public function getToken(Request $request){
+        Auth::user()->tokens->get();
+    }
+    public function logout(){
+        auth()->user()->tokens->delete();
+        return ApiCustomResponse::sendResponse( 'User logout successfully.');
+
     }
 }

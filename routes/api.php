@@ -20,7 +20,7 @@ use App\Http\Controllers\API\RegisterController;
 
 Route::controller(RegisterController::class)->group(function(){
     Route::post('register', 'register');
-    Route::post('login', 'login');
+    Route::post('login', 'login')->name('login');
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -33,7 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('author/update/{id}', [AuthorController::class, 'update']);
     Route::delete('author/destroy/{id}', [AuthorController::class, 'destroy']);
 });
-Route::middleware(['auth:sanctum','verified'])->group(function () {
+Route::middleware('auth:sanctum')->group(function () {
     Route::get('category/index', [CategoryController::class, 'index']);
     Route::post('category/store', [CategoryController::class, 'store']);
     Route::get('category/show/{id}', [CategoryController::class, 'show']);
@@ -45,6 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('book/index', [BookController::class, 'index']);
     Route::post('book/store', [BookController::class, 'store']);
     Route::get('book/show/{id}', [BookController::class, 'show']);
+    Route::get('book/getBooksToRead',[BookController::class,'getBooksToRead']);
     Route::patch('/book/update/{id}', [BookController::class, 'update']);
     Route::delete('book/destroy/{id}', [BookController::class, 'destroy']);
 });

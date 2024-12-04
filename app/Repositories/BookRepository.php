@@ -55,15 +55,27 @@ class BookRepository extends BaseRepository implements BookRepositoryInterface
         }
     }
 
+    public function getAll(){
+        try {
+            $books =  Book::all();
+            $books->load('authors');
+            $books->load('categories');
+
+            if (is_null($books)) {
+                return ApiCustomResponse::sendResponse("There\'s no $this->modelName , sorry", 202);
+            }
+            return ApiCustomResponse::sendResponse(($books), "$this->modelName retrieved successfully");
+        } catch (Throwable $e) {
+            return ApiCustomResponse::sendError('An unexcepted error occured', $e->getMessage(), 500);
+        }
+    }
+
     public function update($bookId, UpdateBookRequest $updateBookRequest)
     {
         try {
             $validatedData = $updateBookRequest->validated();
-            $bookFound = Book::find($bookId);
-            if (is_null($bookFound)) {
-                return ApiCustomResponse::sendError('Book not found.');
-            }
-            $bookFound->update($validatedData);
+            $bookFound = Book::findOrFail($bookId)
+                        ->update($validatedData);
 
             return ApiCustomResponse::sendResponse($bookFound, 'Author updated successfully.');
         } catch (Throwable $e) {
@@ -74,10 +86,11 @@ class BookRepository extends BaseRepository implements BookRepositoryInterface
     public function getBooksToRead()
     {
         try {
-            $books = Book::where('toRead', true);
+            $books = DB::table('books')->where('toRead',0)->get();
             if (is_null($books)) {
                 return ApiCustomResponse::sendError('Book not found');
             }
+            return ApiCustomResponse::sendResponse($books,'ci dovrebbero essere libri.....');
         } catch (Throwable $e) {
             return ApiCustomResponse::sendError('An unexcepted error occured', $e->getMessage(), 500);
         }

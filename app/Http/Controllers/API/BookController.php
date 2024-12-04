@@ -20,6 +20,7 @@ class BookController extends Controller
      */
     public function index()
     {
+        $xdebugBreak = xdebug_break();
         return $this->bookRepositoryInterface->getAll();
     }
 
@@ -38,6 +39,10 @@ class BookController extends Controller
     public function show($bookId)
     {
         return $this->bookRepositoryInterface->getById($bookId);
+    }
+
+    public function getBooksToRead(){
+        return $this->bookRepositoryInterface->getBooksToRead();
     }
 
     /**

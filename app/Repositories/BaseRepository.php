@@ -45,11 +45,11 @@ abstract class BaseRepository implements RepositoryInterface
     public function getById($id)
     {
         try {
-            $category = $this->model::find($id);
-            if (is_null($category)) {
+            $element = $this->model::find($id);
+            if (is_null($element)) {
                 return ApiCustomResponse::sendError("$this->modelName not found.");
             } else
-                return ApiCustomResponse::sendResponse(($category), "$this->modelName found.");
+                return ApiCustomResponse::sendResponse(($element), "$this->modelName found.");
         } catch (Throwable $e) {
             return ApiCustomResponse::sendError('An unexcepted error occured', $e->getMessage(), 500);
         }
@@ -74,8 +74,8 @@ abstract class BaseRepository implements RepositoryInterface
     {
         try {
             if ($this->model::where('id', $id)->exists()) {
-                $elementToDelete = $this->model::find($id);
-                $elementToDelete->delete();
+                $elementToDelete = $this->model::where('id',$id)
+                        ->delete();
                 return ApiCustomResponse::sendResponse("$this->modelName deleted",202);
             } else {
                 return ApiCustomResponse::sendError("$this->modelName not found", '', 404);
