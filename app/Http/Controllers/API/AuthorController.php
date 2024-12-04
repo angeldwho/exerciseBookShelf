@@ -2,24 +2,29 @@
 
 namespace App\Http\Controllers\API;
 
+use Throwable;
+use App\Models\Author;
+use App\Utils\ApiCustomResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAuthorRequest;
 use App\Http\Requests\UpdateAuthorRequest;
-use App\Interfaces\IRepositories\AuthorRepositoryInterface;
 
 class AuthorController extends Controller
 {
-    protected $authorRepositoryInterface;
-    public function __construct(AuthorRepositoryInterface $authorRepositoryInterface)
-    {
-        $this->authorRepositoryInterface = $authorRepositoryInterface;
-    }
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return $this->authorRepositoryInterface->getAll();
+        try {
+            $elementsRetrieve =  Author::all();
+            if (is_null($elementsRetrieve)) {
+                return ApiCustomResponse::sendResponse("There\'s no author , sorry", 202);
+            }
+            return ApiCustomResponse::sendResponse(($elementsRetrieve), "Authors retrieved successfully");
+        } catch (Throwable $e) {
+            return ApiCustomResponse::sendError('An unexcepted error occured', $e->getMessage(), 500);
+        }
     }
 
     /**
@@ -27,7 +32,13 @@ class AuthorController extends Controller
      */
     public function store(StoreAuthorRequest $storeAuthorRequest)
     {
-        return $this->authorRepositoryInterface->create($storeAuthorRequest);
+        try {
+            $validatedData = $storeAuthorRequest->validated();
+            $author = Author::create($validatedData);
+            return ApiCustomResponse::sendResponse($author, 'Author created successfully.');
+        } catch (Throwable $e) {
+            return ApiCustomResponse::sendError('An unexcepted error occured', $e->getMessage(), 500);
+        }
     }
 
     /**
@@ -35,7 +46,15 @@ class AuthorController extends Controller
      */
     public function show($authorId)
     {
-       return $this->authorRepositoryInterface->getById($authorId);
+        try {
+            $element = Author::find($authorId);
+            if (is_null($element)) {
+                return ApiCustomResponse::sendError("Author not found.");
+            } else
+                return ApiCustomResponse::sendResponse(($element), "Author found.");
+        } catch (Throwable $e) {
+            return ApiCustomResponse::sendError('An unexcepted error occured', $e->getMessage(), 500);
+        }
     }
 
     /**
@@ -43,7 +62,18 @@ class AuthorController extends Controller
      */
     public function update($authorId, UpdateAuthorRequest $updateAuthorRequest)
     {
-        return $this->authorRepositoryInterface->update($authorId,$updateAuthorRequest);
+        try {
+            $validatedData = $updateAuthorRequest->validated();
+            $authorFound = Author::find($authorId);
+            if (is_null($authorFound)) {
+                return ApiCustomResponse::sendError('Author not found.');
+            }
+            $authorFound->update($validatedData);
+
+            return ApiCustomResponse::sendResponse($authorFound, 'Author updated successfully.');
+        } catch (Throwable $e) {
+            return ApiCustomResponse::sendError('An unexcepted error occured', $e->getMessage(), 500);
+        }
     }
 
     /**
@@ -51,6 +81,16 @@ class AuthorController extends Controller
      */
     public function destroy($authorId)
     {
-        return $this->authorRepositoryInterface->delete($authorId);
+        try {
+            if (Author::where('id', $authorId)->exists()) {
+                $elementToDelete = Author::where('id',$authorId)
+                        ->delete();
+                return ApiCustomResponse::sendResponse("Author deleted",202);
+            } else {
+                return ApiCustomResponse::sendError("Author not found", '', 404);
+            }
+        } catch (Throwable $e) {
+            return ApiCustomResponse::sendError('An unexcepted error occured', $e->getMessage(), 500);
+        }
     }
 }

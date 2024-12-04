@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Http\Controllers\API\AuthorController;
+use App\Http\Controllers\API\CategoryController;
 use App\Interfaces\IRepositories\AuthorRepositoryInterface;
 use App\Interfaces\IRepositories\BookRepositoryInterface;
 use App\Interfaces\IRepositories\CategoryRepositoryInterface;
@@ -19,10 +21,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(BookRepositoryInterface::class,BookRepository::class);
-        $this->app->bind(AuthorRepositoryInterface::class,AuthorRepository::class);
-        $this->app->bind(CategoryRepositoryInterface::class,CategoryRepository::class);
-        $this->app->bind(RepositoryInterface::class,BaseRepository::class);
+        $this->app->bind(AuthorController::class);
+        $this->app->bind(CategoryController::class);
+
     }
 
     /**
